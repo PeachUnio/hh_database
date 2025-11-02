@@ -63,3 +63,20 @@ class DBManger:
                 """
         result = self._execute_query(query)
         return round(result[0][0], 2) if result and result[0][0] else 0.0
+
+    def get_vacancies_with_keyword(self, keyword):
+        """Метод для получения списка всех вакансий, в названии которых содержатся переданные слова"""
+        query = """
+            SELECT 
+                e.name as company_name,
+                v.name as vacancy_name,
+                COALESCE(v.salary_from, 0) as salary_from,
+                COALESCE(v.salary_to, 0) as salary_to,
+                v.currency,
+                v.url
+            FROM vacancies v
+            JOIN employers e ON v.employer_id = e.id
+            WHERE LOWER(v.name) LIKE LOWER(%s)
+            ORDER BY e.name, (COALESCE(v.salary_from, 0) + COALESCE(v.salary_to, 0)) / 2 DESC
+        """
+        return self._execute_query(query, (f'%{keyword}%',))
