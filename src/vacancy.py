@@ -23,3 +23,13 @@ class Vacancy:
             return salary_data["currency"]
         return None
 
+    def get_avg_salary(self):
+        """Рассчитывает среднюю зарплату"""
+        if self.salary_from and self.salary_to:
+            return (self.salary_from + self.salary_to) / 2
+        elif self.salary_from:
+            return self.salary_from
+        elif self.salary_to:
+            return self.salary_to
+        return None
+
