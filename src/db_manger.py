@@ -13,3 +13,43 @@ class DBManger:
             "host": os.getenv("DB_HOST"),
             "port": os.getenv("DB_PORT")
         }
+
+    def _execute_query(self, query, params=None):
+        """Метод для отправки sql запроса"""
+        try:
+            with psycopg2.connect(**self.conn_params) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(query, params)
+                    return cursor.fetchall()
+        except Exception as e:
+            print(f"Ошибка при выполнении запроса: {e}")
+            return []
+
+    def get_companies_and_vacancies_count(self):
+        """Метод для получения списков всех компаний и количество вакансий у каждой компании"""
+        query = """
+                    SELECT e.name, COUNT(v.id) as vacancy_count
+                    FROM employers e
+                    LEFT JOIN vacancies v ON e.id = v.employer_id
+                    GROUP BY e.id, e.name
+                    ORDER BY vacancy_count DESC
+                """
+        return self._execute_query(query)
+
+    def get_all_vacancies(self):
+        """
+        Метод для получения списков всех вакансий с указанием названия компании, названия вакансии и зарплаты и ссылки на вакансию
+        """
+        query = """
+                    SELECT 
+                        e.name as company_name,
+                        v.name as vacancy_name,
+                        COALESCE(v.salary_from, 0) as salary_from,
+                        COALESCE(v.salary_to, 0) as salary_to,
+                        v.currency,
+                        v.url
+                    FROM vacancies v
+                    JOIN employers e ON v.employer_id = e.id
+                    ORDER BY e.name, (COALESCE(v.salary_from, 0) + COALESCE(v.salary_to, 0)) / 2 DESC
+                """
+        return self._execute_query(query)
