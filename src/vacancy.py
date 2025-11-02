@@ -33,3 +33,9 @@ class Vacancy:
             return self.salary_to
         return None
 
+    def __str__(self):
+        salary_info = "Не указана"
+        if self.salary_from or self.salary_to:
+            salary_info = f"{self.salary_from or '*'} - {self.salary_to or '*'} {self.currency or ''}"
+
+        return f"{self.name} зарплата: {salary_info}; oпыт: {self.experience}"
