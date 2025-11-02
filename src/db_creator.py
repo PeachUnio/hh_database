@@ -18,12 +18,10 @@ class DBCreator:
     def create_database(self):
         """Метод для создания базы данных"""
         try:
-            # Подключаемся к postgres БД для создания новой БД
             conn = psycopg2.connect(**self.conn_params)
             conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
             cursor = conn.cursor()
 
-            # Проверяем существование БД
             cursor.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{os.getenv("DB_NAME")}'")
             exists = cursor.fetchone()
 
@@ -38,3 +36,4 @@ class DBCreator:
 
         except Exception as e:
             print(f"Ошибка при создании базы данных: {e}")
+
