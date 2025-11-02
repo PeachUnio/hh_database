@@ -53,3 +53,13 @@ class DBManger:
                     ORDER BY e.name, (COALESCE(v.salary_from, 0) + COALESCE(v.salary_to, 0)) / 2 DESC
                 """
         return self._execute_query(query)
+
+    def get_avg_salary(self):
+        """Метод для получения средней зарплаты по вакансиям"""
+        query = """
+                    SELECT AVG((COALESCE(salary_from, 0) + COALESCE(salary_to, 0)) / 2) as avg_salary
+                    FROM vacancies
+                    WHERE salary_from IS NOT NULL OR salary_to IS NOT NULL
+                """
+        result = self._execute_query(query)
+        return round(result[0][0], 2) if result and result[0][0] else 0.0
