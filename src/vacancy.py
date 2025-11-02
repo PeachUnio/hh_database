@@ -11,3 +11,15 @@ class Vacancy:
         self.requirement = vacancy_data.get("snippet", {}).get("requirement", "")
         self.experience = vacancy_data.get("experience", {}).get("name", "")
 
+    def _get_salary(self, salary_data, key):
+        """Извлекает зарплату из данных"""
+        if salary_data and salary_data.get(key):
+            return salary_data[key]
+        return None
+
+    def _get_currency(self, salary_data):
+        """Извлекает валюту из данных о зарплате"""
+        if salary_data and salary_data.get("currency"):
+            return salary_data["currency"]
+        return None
+
