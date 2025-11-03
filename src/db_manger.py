@@ -1,17 +1,20 @@
-import psycopg2
 import os
+
+import psycopg2
 from dotenv import load_dotenv
 
 
 class DBManger:
     """Класс для управления базой данных"""
+
     def __init__(self):
         load_dotenv()
         self.conn_params = {
+            "database": os.getenv("DB_NAME"),
             "user": os.getenv("DB_USER"),
             "password": os.getenv("DB_PASSWORD"),
             "host": os.getenv("DB_HOST"),
-            "port": os.getenv("DB_PORT")
+            "port": os.getenv("DB_PORT"),
         }
 
     def _execute_query(self, query, params=None):
@@ -64,6 +67,24 @@ class DBManger:
         result = self._execute_query(query)
         return round(result[0][0], 2) if result and result[0][0] else 0.0
 
+    def get_vacancies_with_higher_salary(self):
+        """Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям"""
+        avg_salary = self.get_avg_salary()
+        query = """
+            SELECT 
+                e.name as company_name,
+                v.name as vacancy_name,
+                COALESCE(v.salary_from, 0) as salary_from,
+                COALESCE(v.salary_to, 0) as salary_to,
+                v.currency,
+                v.url
+            FROM vacancies v
+            JOIN employers e ON v.employer_id = e.id
+            WHERE (COALESCE(v.salary_from, 0) + COALESCE(v.salary_to, 0)) / 2 > %s
+            ORDER BY (COALESCE(v.salary_from, 0) + COALESCE(v.salary_to, 0)) / 2 DESC
+        """
+        return self._execute_query(query, (avg_salary,))
+
     def get_vacancies_with_keyword(self, keyword):
         """Метод для получения списка всех вакансий, в названии которых содержатся переданные слова"""
         query = """
@@ -79,4 +100,4 @@ class DBManger:
             WHERE LOWER(v.name) LIKE LOWER(%s)
             ORDER BY e.name, (COALESCE(v.salary_from, 0) + COALESCE(v.salary_to, 0)) / 2 DESC
         """
-        return self._execute_query(query, (f'%{keyword}%',))
+        return self._execute_query(query, (f"%{keyword}%",))

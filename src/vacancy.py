@@ -1,5 +1,6 @@
 class Vacancy:
     """Класс для работы с вакансиями"""
+
     def __init__(self, vacancy_data, employer_id):
         self.id = vacancy_data.get("id")
         self.name = vacancy_data.get("name", "")
