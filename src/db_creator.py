@@ -1,18 +1,20 @@
-import psycopg2
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import os
+
+import psycopg2
 from dotenv import load_dotenv
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 
 class DBCreator:
     """Класс для создания базы данных"""
+
     def __init__(self):
         load_dotenv()
         self.conn_params = {
             "user": os.getenv("DB_USER"),
             "password": os.getenv("DB_PASSWORD"),
             "host": os.getenv("DB_HOST"),
-            "port": os.getenv("DB_PORT")
+            "port": os.getenv("DB_PORT"),
         }
 
     def create_database(self):
@@ -47,7 +49,8 @@ class DBCreator:
             cursor = conn.cursor()
 
             # таблица employers
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS employers (
                     id INTEGER PRIMARY KEY,
                     name VARCHAR(255) NOT NULL,
@@ -57,10 +60,12 @@ class DBCreator:
                     alternate_url VARCHAR(255),
                     open_vacancies INTEGER
                 )
-            """)
+            """
+            )
 
             # таблица vacancies
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS vacancies (
                     id INTEGER PRIMARY KEY,
                     employer_id INTEGER REFERENCES employers(id) ON DELETE CASCADE,
@@ -72,7 +77,8 @@ class DBCreator:
                     requirement TEXT,
                     experience VARCHAR(100)
                 )
-            """)
+            """
+            )
 
             conn.commit()
             print("Таблицы созданы успешно")
@@ -95,7 +101,8 @@ class DBCreator:
             for company_id, data in companies_data.items():
                 employer = data["employer_info"]
 
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT INTO employers (id, name, description, area, site_url, alternate_url, open_vacancies)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (id) DO UPDATE SET
@@ -105,15 +112,17 @@ class DBCreator:
                     site_url = EXCLUDED.site_url,
                     alternate_url = EXCLUDED.alternate_url,
                     open_vacancies = EXCLUDED.open_vacancies
-                """, (
-                    employer["id"],
-                    employer["name"],
-                    employer.get("description"),
-                    employer["area"].get("name") if employer.get("area") else None,
-                    employer.get("site_url"),
-                    employer.get("alternate_url"),
-                    employer.get("open_vacancies", 0)
-                ))
+                """,
+                    (
+                        employer["id"],
+                        employer["name"],
+                        employer.get("description"),
+                        employer["area"].get("name") if employer.get("area") else None,
+                        employer.get("site_url"),
+                        employer.get("alternate_url"),
+                        employer.get("open_vacancies", 0),
+                    ),
+                )
 
             # данные о вакансиях
             for company_id, data in companies_data.items():
@@ -128,7 +137,8 @@ class DBCreator:
                         salary_to = salary.get("to")
                         currency = salary.get("currency")
 
-                    cursor.execute("""
+                    cursor.execute(
+                        """
                         INSERT INTO vacancies (id, employer_id, name, salary_from, salary_to, currency, url, requirement, experience)
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                         ON CONFLICT (id) DO UPDATE SET
@@ -140,17 +150,19 @@ class DBCreator:
                         url = EXCLUDED.url,
                         requirement = EXCLUDED.requirement,
                         experience = EXCLUDED.experience
-                    """, (
-                        vacancy_data["id"],
-                        company_id,
-                        vacancy_data["name"],
-                        salary_from,
-                        salary_to,
-                        currency,
-                        vacancy_data.get("alternate_url"),
-                        vacancy_data.get("snippet", {}).get("requirement"),
-                        vacancy_data.get("experience", {}).get("name")
-                    ))
+                    """,
+                        (
+                            vacancy_data["id"],
+                            company_id,
+                            vacancy_data["name"],
+                            salary_from,
+                            salary_to,
+                            currency,
+                            vacancy_data.get("alternate_url"),
+                            vacancy_data.get("snippet", {}).get("requirement"),
+                            vacancy_data.get("experience", {}).get("name"),
+                        ),
+                    )
 
             conn.commit()
             print("База данных заполнена успешно")

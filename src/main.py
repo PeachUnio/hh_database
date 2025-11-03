@@ -67,7 +67,9 @@ def main():
                 found_vacancies = db_manager.get_vacancies_with_keyword(keyword)
                 if found_vacancies:
                     for company, name, salary_from, salary_to, currency, url in found_vacancies:
-                        salary_info = f"{salary_from} - {salary_to} {currency}" if salary_from or salary_to else "Не указана"
+                        salary_info = (
+                            f"{salary_from} - {salary_to} {currency}" if salary_from or salary_to else "Не указана"
+                        )
                         print(f"{company}: {name} | Зарплата: {salary_info} | Ссылка: {url}")
                 else:
                     print(f"Вакансии по запросу '{keyword}' не найдены")

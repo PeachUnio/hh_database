@@ -1,9 +1,11 @@
 import requests
+
 from data import COMPANIES
 
 
 class HhApi:
     """Класс для работы с API hh.ru"""
+
     def __init__(self):
         self.base_url = "https://api.hh.ru/"
 
@@ -23,11 +25,7 @@ class HhApi:
         """Метод для получения вакансий от работодателя"""
         employer_id = int(employer_id)
         url = f"{self.base_url}vacancies"
-        params = {
-            "employer_id": employer_id,
-            "per_page": 100,
-            "page": 0
-        }
+        params = {"employer_id": employer_id, "per_page": 100, "page": 0}
         vac = []
         try:
             while True:
@@ -51,18 +49,13 @@ class HhApi:
 
         for company in COMPANIES:
             # информация о компании
-            employer_info  = self.get_employer_info(company["id"])
+            employer_info = self.get_employer_info(company["id"])
             if not employer_info:
                 continue
 
             # информация о вакансиях компании
             vac = self.get_employer_vac(company["id"])
 
-            companies_data[company["id"]] = {
-                "employer_info": employer_info,
-                "vacancies": vac
-            }
+            companies_data[company["id"]] = {"employer_info": employer_info, "vacancies": vac}
 
         return companies_data
-
-print(HhApi().get_all_companies_data())

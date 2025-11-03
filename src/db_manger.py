@@ -1,17 +1,19 @@
-import psycopg2
 import os
+
+import psycopg2
 from dotenv import load_dotenv
 
 
 class DBManger:
     """Класс для управления базой данных"""
+
     def __init__(self):
         load_dotenv()
         self.conn_params = {
             "user": os.getenv("DB_USER"),
             "password": os.getenv("DB_PASSWORD"),
             "host": os.getenv("DB_HOST"),
-            "port": os.getenv("DB_PORT")
+            "port": os.getenv("DB_PORT"),
         }
 
     def _execute_query(self, query, params=None):
@@ -97,4 +99,4 @@ class DBManger:
             WHERE LOWER(v.name) LIKE LOWER(%s)
             ORDER BY e.name, (COALESCE(v.salary_from, 0) + COALESCE(v.salary_to, 0)) / 2 DESC
         """
-        return self._execute_query(query, (f'%{keyword}%',))
+        return self._execute_query(query, (f"%{keyword}%",))
