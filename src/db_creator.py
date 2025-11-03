@@ -42,46 +42,43 @@ class DBCreator:
     def create_tables(self):
         """Метод для создания таблицы в базе данных"""
         try:
-            # Подключаемся к нашей БД
             conn_params_with_db = self.conn_params.copy()
             conn_params_with_db["database"] = os.getenv("DB_NAME")
             conn = psycopg2.connect(**conn_params_with_db)
             cursor = conn.cursor()
 
-            # таблица employers
-            cursor.execute(
-                """
-                CREATE TABLE IF NOT EXISTS employers (
-                    id INTEGER PRIMARY KEY,
-                    name VARCHAR(255) NOT NULL,
-                    description TEXT,
-                    area VARCHAR(100),
-                    site_url VARCHAR(255),
-                    alternate_url VARCHAR(255),
-                    open_vacancies INTEGER
-                )
-            """
-            )
+            # Создаем таблицу employers
+            cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS employers (
+                            id INTEGER PRIMARY KEY,
+                            name VARCHAR(255) NOT NULL,
+                            description TEXT,
+                            area VARCHAR(100),
+                            site_url VARCHAR(255),
+                            alternate_url VARCHAR(255),
+                            open_vacancies INTEGER
+                        )
+                    """)
+            print("Таблица 'employers' создана/проверена")
 
-            # таблица vacancies
-            cursor.execute(
-                """
-                CREATE TABLE IF NOT EXISTS vacancies (
-                    id INTEGER PRIMARY KEY,
-                    employer_id INTEGER REFERENCES employers(id) ON DELETE CASCADE,
-                    name VARCHAR(255) NOT NULL,
-                    salary_from INTEGER,
-                    salary_to INTEGER,
-                    currency VARCHAR(10),
-                    url VARCHAR(255),
-                    requirement TEXT,
-                    experience VARCHAR(100)
-                )
-            """
-            )
+            # Создаем таблицу vacancies
+            cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS vacancies (
+                            id INTEGER PRIMARY KEY,
+                            employer_id INTEGER REFERENCES employers(id) ON DELETE CASCADE,
+                            name VARCHAR(255) NOT NULL,
+                            salary_from INTEGER,
+                            salary_to INTEGER,
+                            currency VARCHAR(10),
+                            url VARCHAR(255),
+                            requirement TEXT,
+                            experience VARCHAR(100)
+                        )
+                    """)
+            print("Таблица 'vacancies' создана/проверена")
 
             conn.commit()
-            print("Таблицы созданы успешно")
+            print("Все таблицы созданы успешно")
 
             cursor.close()
             conn.close()
