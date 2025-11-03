@@ -10,6 +10,7 @@ class DBManger:
     def __init__(self):
         load_dotenv()
         self.conn_params = {
+            "database": os.getenv("DB_NAME"),
             "user": os.getenv("DB_USER"),
             "password": os.getenv("DB_PASSWORD"),
             "host": os.getenv("DB_HOST"),
